@@ -1,685 +1,189 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Runner — หลบสิ่งของ</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+Thai:wght@400;600;700&display=swap');
-
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg:       #0d0d1a;
-    --surface:  #141428;
-    --border:   #2a2a50;
-    --purple:   #7F77DD;
-    --purple2:  #534AB7;
-    --purple3:  #AFA9EC;
-    --coral:    #D85A30;
-    --teal:     #1D9E75;
-    --pink:     #D4537E;
-    --red:      #E24B4A;
-    --text:     #e8e6ff;
-    --muted:    #7a78a8;
-  }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans Thai', sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    overflow: hidden;
-    user-select: none;
-  }
-
-  /* Starfield bg */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      radial-gradient(1px 1px at 10% 20%, rgba(175,169,236,0.6) 0%, transparent 100%),
-      radial-gradient(1px 1px at 30% 50%, rgba(175,169,236,0.4) 0%, transparent 100%),
-      radial-gradient(1.5px 1.5px at 55% 15%, rgba(175,169,236,0.5) 0%, transparent 100%),
-      radial-gradient(1px 1px at 70% 35%, rgba(175,169,236,0.3) 0%, transparent 100%),
-      radial-gradient(1px 1px at 85% 60%, rgba(175,169,236,0.5) 0%, transparent 100%),
-      radial-gradient(1.5px 1.5px at 20% 75%, rgba(175,169,236,0.4) 0%, transparent 100%),
-      radial-gradient(1px 1px at 90% 10%, rgba(175,169,236,0.6) 0%, transparent 100%),
-      radial-gradient(1px 1px at 45% 80%, rgba(175,169,236,0.3) 0%, transparent 100%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .wrapper {
-    position: relative;
-    z-index: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .title {
-    font-family: 'Space Mono', monospace;
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 4px;
-    color: var(--purple3);
-    text-transform: uppercase;
-    margin-bottom: 4px;
-  }
-
-  .hud {
-    display: flex;
-    gap: 32px;
-    font-family: 'Space Mono', monospace;
-    font-size: 13px;
-    color: var(--muted);
-    width: 560px;
-    justify-content: center;
-  }
-
-  .hud-item { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-  .hud-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
-  .hud-val { font-size: 20px; font-weight: 700; color: var(--purple3); transition: color 0.2s; }
-  .hud-val.new { color: var(--teal); }
-
-  canvas {
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    display: block;
-    image-rendering: pixelated;
-    box-shadow: 0 0 40px rgba(127,119,221,0.12), 0 0 80px rgba(127,119,221,0.05);
-  }
-
-  .controls {
-    font-size: 12px;
-    color: var(--muted);
-    text-align: center;
-    line-height: 1.8;
-    letter-spacing: 0.3px;
-  }
-
-  .controls kbd {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 1px 6px;
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    color: var(--purple3);
-  }
-
-  .btn {
-    margin-top: 4px;
-    padding: 8px 28px;
-    background: transparent;
-    border: 1px solid var(--purple);
-    border-radius: 8px;
-    color: var(--purple3);
-    font-family: 'Space Mono', monospace;
-    font-size: 13px;
-    letter-spacing: 2px;
-    cursor: pointer;
-    transition: background 0.15s, box-shadow 0.15s;
-    display: none;
-  }
-
-  .btn:hover {
-    background: rgba(127,119,221,0.1);
-    box-shadow: 0 0 16px rgba(127,119,221,0.2);
-  }
-
-  /* mobile */
-  @media (max-width: 600px) {
-    canvas { width: 360px; height: 165px; }
-    .hud { width: 360px; gap: 16px; }
-    .title { font-size: 16px; }
-  }
-</style>
+    <meta charset="UTF-8">
+    <title>เกมวิ่งเก็บเหรียญ 2D</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #222;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        canvas {
+            background-color: #87CEEB; /* สีฟ้าท้องฟ้า */
+            border: 4px solid #fff;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+    </style>
 </head>
 <body>
-<div class="wrapper">
-  <div class="title">RUNNER</div>
 
-  <div class="hud">
-    <div class="hud-item">
-      <div class="hud-label">Score</div>
-      <div class="hud-val" id="scoreDisplay">0</div>
-    </div>
-    <div class="hud-item">
-      <div class="hud-label">Best</div>
-      <div class="hud-val" id="hiDisplay">0</div>
-    </div>
-    <div class="hud-item">
-      <div class="hud-label">Level</div>
-      <div class="hud-val" id="lvlDisplay">1</div>
-    </div>
-  </div>
-
-  <canvas id="gameCanvas" width="560" height="240"></canvas>
-
-  <div class="controls">
-    <kbd>Space</kbd> / <kbd>↑</kbd> / แตะ = กระโดด (2 ครั้ง) &nbsp;|&nbsp;
-    <kbd>↓</kbd> = นอนราบ
-  </div>
-
-  <button class="btn" id="restartBtn">▶ RESTART</button>
-</div>
+<canvas id="gameCanvas" width="800" height="400"></canvas>
 
 <script>
-const canvas  = document.getElementById('gameCanvas');
-const ctx     = canvas.getContext('2d');
-const W = canvas.width, H = canvas.height;
-const GROUND  = H - 44;
-const FLOOR_Y = GROUND + 36;
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
 
-/* ─── palette ─── */
-const C = {
-  bg:      '#0d0d1a',
-  bg2:     '#141428',
-  ground:  '#1e1e3c',
-  groundL: '#2a2a50',
-  purple:  '#7F77DD',
-  purple2: '#534AB7',
-  purple3: '#AFA9EC',
-  coral:   '#D85A30',
-  teal:    '#1D9E75',
-  pink:    '#D4537E',
-  red:     '#E24B4A',
-  amber:   '#EF9F27',
-  white:   '#ffffff',
-};
+    // ตัวแปรระบบเกม
+    let score = 0;
+    const gravity = 0.6;
+    const friction = 0.8;
 
-/* ─── state ─── */
-let score, hi = 0, frame, speed, gameState;
-let obstacles, particles, clouds;
-let flashTimer = 0;
+    // ระบบปุ่มกด
+    const keys = {
+        right: false,
+        left: false,
+        up: false
+    };
 
-const player = {
-  x: 75, y: GROUND, w: 28, h: 36,
-  vy: 0, onGround: true, ducking: false, jumpCount: 0,
-  animFrame: 0
-};
+    // ตัวละครผู้เล่น
+    const player = {
+        x: 50,
+        y: 300,
+        width: 30,
+        height: 30,
+        speed: 5,
+        velX: 0,
+        velY: 0,
+        jumping: false,
+        grounded: false
+    };
 
-/* ─── init ─── */
-function reset() {
-  score = 0; frame = 0; speed = 4.2;
-  obstacles = []; particles = [];
-  clouds = [
-    { x: 80,  y: 28, r: 22 },
-    { x: 260, y: 18, r: 16 },
-    { x: 420, y: 32, r: 20 },
-  ];
-  player.y = GROUND; player.vy = 0;
-  player.onGround = true; player.ducking = false;
-  player.jumpCount = 0; player.animFrame = 0;
-  gameState = 'running';
-  document.getElementById('restartBtn').style.display = 'none';
-}
+    // พื้นดินและแท่นกระโดด
+    const platforms = [
+        { x: 0, y: 350, width: 800, height: 50 }, // พื้นหลัก
+        { x: 200, y: 250, width: 100, height: 10 },
+        { x: 400, y: 180, width: 100, height: 10 },
+        { x: 600, y: 100, width: 100, height: 10 }
+    ];
 
-function die() {
-  gameState = 'dead';
-  if (score > hi) {
-    hi = score;
-    document.getElementById('hiDisplay').textContent = hi;
-    document.getElementById('hiDisplay').classList.add('new');
-    setTimeout(() => document.getElementById('hiDisplay').classList.remove('new'), 800);
-  }
-  spawnParticles(player.x + player.w / 2, player.y + player.h / 2, C.red, 20);
-  document.getElementById('restartBtn').style.display = 'inline-block';
-}
+    // เหรียญ
+    let coins = [
+        { x: 235, y: 210, width: 20, height: 20, collected: false },
+        { x: 435, y: 140, width: 20, height: 20, collected: false },
+        { x: 635, y: 60, width: 20, height: 20, collected: false },
+        { x: 700, y: 310, width: 20, height: 20, collected: false }
+    ];
 
-/* ─── input ─── */
-function doJump() {
-  if (gameState === 'idle' || gameState === 'dead') { reset(); return; }
-  if (player.jumpCount < 2) {
-    player.vy = -11;
-    player.onGround = false;
-    player.jumpCount++;
-    spawnParticles(player.x + player.w / 2, player.y + player.h, C.purple3, 6);
-  }
-}
-function doDuck(on) {
-  if (gameState === 'running') player.ducking = on;
-}
-
-document.addEventListener('keydown', e => {
-  if (e.code === 'Space' || e.code === 'ArrowUp')   { e.preventDefault(); doJump(); }
-  if (e.code === 'ArrowDown') { e.preventDefault(); doDuck(true); }
-});
-document.addEventListener('keyup', e => {
-  if (e.code === 'ArrowDown') doDuck(false);
-});
-canvas.addEventListener('touchstart', e => { e.preventDefault(); doJump(); }, { passive: false });
-canvas.addEventListener('click', doJump);
-document.getElementById('restartBtn').addEventListener('click', reset);
-
-/* ─── obstacles ─── */
-const OBS_DEFS = [
-  { w:16, h:40, color: C.coral,  top: false, shape: 'cactus' },
-  { w:24, h:24, color: C.teal,   top: false, shape: 'rock'   },
-  { w:14, h:52, color: C.pink,   top: false, shape: 'spike'  },
-  { w:32, h:16, color: C.amber,  top: true,  shape: 'bird'   },
-  { w:18, h:44, color: C.purple, top: false, shape: 'pillar' },
-];
-
-let lastObsFrame = 0;
-function trySpawnObstacle() {
-  const minInterval = Math.max(55, 140 - score * 0.2);
-  if (frame - lastObsFrame > minInterval / speed * 1.6 + Math.random() * 25) {
-    const def = OBS_DEFS[Math.floor(Math.random() * OBS_DEFS.length)];
-    obstacles.push({
-      x: W + 30,
-      y: def.top ? GROUND - 115 : GROUND - def.h + player.h,
-      w: def.w, h: def.h,
-      color: def.color, shape: def.shape, top: def.top
+    // ดักจับการกดปุ่ม
+    window.addEventListener("keydown", function(e) {
+        if (e.code === "ArrowRight") keys.right = true;
+        if (e.code === "ArrowLeft") keys.left = true;
+        if (e.code === "ArrowUp" || e.code === "Space") keys.up = true;
     });
-    lastObsFrame = frame;
-  }
-}
 
-/* ─── particles ─── */
-function spawnParticles(x, y, color, n) {
-  for (let i = 0; i < n; i++) {
-    particles.push({
-      x, y,
-      vx: (Math.random() - 0.5) * 5,
-      vy: -(Math.random() * 4 + 1),
-      life: 1, maxLife: 1,
-      r: Math.random() * 3 + 1,
-      color
+    window.addEventListener("keyup", function(e) {
+        if (e.code === "ArrowRight") keys.right = false;
+        if (e.code === "ArrowLeft") keys.left = false;
+        if (e.code === "ArrowUp" || e.code === "Space") keys.up = false;
     });
-  }
-}
 
-/* ─── collision ─── */
-function getPlayerRect() {
-  const ph = player.ducking ? 16 : player.h;
-  const py = player.ducking ? GROUND + player.h - 16 : player.y;
-  return { x: player.x + 5, y: py + 4, w: player.w - 10, h: ph - 8 };
-}
-function overlap(a, b) {
-  return a.x < b.x + b.w && a.x + a.w > b.x &&
-         a.y < b.y + b.h && a.y + a.h > b.y;
-}
-
-/* ══════════════════════════════
-   DRAW FUNCTIONS
-══════════════════════════════ */
-
-function drawBg() {
-  ctx.fillStyle = C.bg;
-  ctx.fillRect(0, 0, W, H);
-
-  /* animated stars */
-  const drift = (frame * speed * 0.015) % W;
-  const stars = [
-    [40,18],[100,42],[180,12],[260,28],[360,16],[440,38],[510,10],
-    [70,58],[200,52],[310,68],[430,22],[480,50],[140,30],[390,8],
-  ];
-  ctx.fillStyle = 'rgba(175,169,236,0.55)';
-  for (const [sx, sy] of stars) {
-    const nx = ((sx - drift) % W + W) % W;
-    const r = sx % 3 === 0 ? 1.5 : 1;
-    ctx.beginPath();
-    ctx.arc(nx, sy, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  /* clouds */
-  for (const c of clouds) {
-    ctx.globalAlpha = 0.08;
-    ctx.fillStyle = C.purple3;
-    ctx.beginPath();
-    ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
-    ctx.arc(c.x + c.r * 0.9, c.y + 5, c.r * 0.7, 0, Math.PI * 2);
-    ctx.arc(c.x - c.r * 0.7, c.y + 6, c.r * 0.6, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
-  }
-}
-
-function drawGround() {
-  /* ground fill */
-  ctx.fillStyle = C.ground;
-  ctx.fillRect(0, FLOOR_Y, W, H - FLOOR_Y);
-
-  /* ground line */
-  ctx.strokeStyle = C.groundL;
-  ctx.lineWidth = 1.5;
-  ctx.setLineDash([14, 10]);
-  ctx.lineDashOffset = -(frame * speed * 0.4) % 24;
-  ctx.beginPath();
-  ctx.moveTo(0, FLOOR_Y);
-  ctx.lineTo(W, FLOOR_Y);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.lineDashOffset = 0;
-
-  /* rolling grid marks */
-  ctx.strokeStyle = 'rgba(42,42,80,0.6)';
-  ctx.lineWidth = 0.5;
-  const colW = 60;
-  const off = (frame * speed * 0.4) % colW;
-  for (let gx = -off; gx < W; gx += colW) {
-    ctx.beginPath();
-    ctx.moveTo(gx, FLOOR_Y);
-    ctx.lineTo(gx + 10, H);
-    ctx.stroke();
-  }
-}
-
-function drawPlayer() {
-  const ph = player.ducking ? 16 : player.h;
-  const py = player.ducking ? GROUND + player.h - ph : player.y;
-  const px = player.x;
-  const af = player.animFrame;
-
-  /* shadow */
-  ctx.save();
-  ctx.globalAlpha = 0.25;
-  ctx.fillStyle = C.purple2;
-  ctx.beginPath();
-  ctx.ellipse(px + player.w / 2, FLOOR_Y + 2, player.w * 0.55, 4, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-
-  /* body */
-  ctx.fillStyle = C.purple;
-  ctx.beginPath();
-  ctx.roundRect(px, py, player.w, ph, 6);
-  ctx.fill();
-
-  /* visor stripe */
-  if (!player.ducking) {
-    ctx.fillStyle = C.purple2;
-    ctx.beginPath();
-    ctx.roundRect(px + 5, py + 6, player.w - 10, 12, 3);
-    ctx.fill();
-
-    /* eye */
-    ctx.fillStyle = C.white;
-    ctx.beginPath();
-    ctx.arc(px + player.w - 8, py + 12, 3.5, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#1a1a2e';
-    ctx.beginPath();
-    ctx.arc(px + player.w - 7, py + 12, 2, 0, Math.PI * 2);
-    ctx.fill();
-
-    /* legs */
-    const swing = Math.sin(af * 0.4) * 6;
-    ctx.strokeStyle = C.purple2;
-    ctx.lineWidth = 5;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(px + 9, py + ph - 2);
-    ctx.lineTo(px + 9 + swing, py + ph + 10);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(px + 19, py + ph - 2);
-    ctx.lineTo(px + 19 - swing, py + ph + 10);
-    ctx.stroke();
-
-    /* shoes */
-    ctx.fillStyle = C.purple3;
-    ctx.beginPath();
-    ctx.roundRect(px + 4 + swing, py + ph + 8, 12, 6, 3);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.roundRect(px + 14 - swing, py + ph + 8, 12, 6, 3);
-    ctx.fill();
-  } else {
-    /* duck eyes */
-    ctx.fillStyle = C.white;
-    ctx.beginPath();
-    ctx.arc(px + player.w - 6, py + 7, 3, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#1a1a2e';
-    ctx.beginPath();
-    ctx.arc(px + player.w - 5, py + 7, 1.8, 0, Math.PI * 2);
-    ctx.fill();
-  }
-}
-
-function drawObstacle(o) {
-  ctx.save();
-  ctx.fillStyle = o.color;
-
-  if (o.shape === 'cactus') {
-    /* main stalk */
-    ctx.beginPath();
-    ctx.roundRect(o.x + 4, o.y, 8, o.h, 4);
-    ctx.fill();
-    /* arms */
-    ctx.beginPath();
-    ctx.roundRect(o.x, o.y + 14, 16, 5, 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.roundRect(o.x, o.y + 12, 5, 10, 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.roundRect(o.x + 11, o.y + 16, 5, 10, 2);
-    ctx.fill();
-
-  } else if (o.shape === 'rock') {
-    ctx.beginPath();
-    ctx.ellipse(o.x + o.w / 2, o.y + o.h / 2, o.w / 2, o.h / 2 * 0.9, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,0.12)';
-    ctx.beginPath();
-    ctx.ellipse(o.x + o.w * 0.35, o.y + o.h * 0.3, 5, 4, -0.4, 0, Math.PI * 2);
-    ctx.fill();
-
-  } else if (o.shape === 'spike') {
-    ctx.beginPath();
-    ctx.moveTo(o.x + o.w / 2, o.y);
-    ctx.lineTo(o.x + o.w, o.y + o.h);
-    ctx.lineTo(o.x, o.y + o.h);
-    ctx.closePath();
-    ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
-    ctx.beginPath();
-    ctx.moveTo(o.x + o.w / 2, o.y + 8);
-    ctx.lineTo(o.x + o.w / 2 + 5, o.y + 22);
-    ctx.lineTo(o.x + o.w / 2 - 5, o.y + 22);
-    ctx.closePath();
-    ctx.fill();
-
-  } else if (o.shape === 'bird') {
-    /* bird body */
-    ctx.beginPath();
-    ctx.ellipse(o.x + o.w / 2, o.y + o.h / 2, o.w / 2, o.h / 2, 0, 0, Math.PI * 2);
-    ctx.fill();
-    /* wings flap */
-    const flap = Math.sin(frame * 0.25) * 6;
-    ctx.beginPath();
-    ctx.moveTo(o.x + o.w / 2, o.y + o.h / 2);
-    ctx.bezierCurveTo(o.x - 8, o.y + flap, o.x - 14, o.y + 10 + flap, o.x - 8, o.y + o.h);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(o.x + o.w / 2, o.y + o.h / 2);
-    ctx.bezierCurveTo(o.x + o.w + 8, o.y + flap, o.x + o.w + 14, o.y + 10 + flap, o.x + o.w + 8, o.y + o.h);
-    ctx.fill();
-    /* beak */
-    ctx.fillStyle = '#ffd700';
-    ctx.beginPath();
-    ctx.moveTo(o.x, o.y + o.h / 2 + 1);
-    ctx.lineTo(o.x - 7, o.y + o.h / 2 + 4);
-    ctx.lineTo(o.x - 1, o.y + o.h / 2 + 6);
-    ctx.closePath();
-    ctx.fill();
-
-  } else {
-    /* pillar */
-    ctx.beginPath();
-    ctx.roundRect(o.x, o.y, o.w, o.h, 3);
-    ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,0.1)';
-    ctx.fillRect(o.x + 4, o.y + 4, 4, o.h - 8);
-  }
-
-  /* top indicator for aerial obstacles */
-  if (o.top) {
-    ctx.fillStyle = 'rgba(239,159,39,0.7)';
-    ctx.beginPath();
-    ctx.moveTo(o.x + o.w / 2, o.y - 8);
-    ctx.lineTo(o.x + o.w / 2 + 5, o.y - 1);
-    ctx.lineTo(o.x + o.w / 2 - 5, o.y - 1);
-    ctx.closePath();
-    ctx.fill();
-  }
-
-  ctx.restore();
-}
-
-function drawParticles() {
-  for (const p of particles) {
-    ctx.save();
-    ctx.globalAlpha = p.life / p.maxLife;
-    ctx.fillStyle = p.color;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-}
-
-function drawOverlay() {
-  if (gameState === 'idle') {
-    ctx.save();
-    ctx.fillStyle = 'rgba(13,13,26,0.65)';
-    ctx.fillRect(0, 0, W, H);
-
-    ctx.fillStyle = C.purple3;
-    ctx.font = 'bold 18px "Space Mono", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('TAP TO START', W / 2, H / 2 - 14);
-    ctx.font = '13px "Noto Sans Thai", sans-serif';
-    ctx.fillStyle = C.muted;
-    ctx.fillText = ctx.fillText;
-    ctx.fillStyle = 'rgba(122,120,168,0.9)';
-    ctx.fillText('กระโดด 2 ครั้ง • นอนราบหลบนก', W / 2, H / 2 + 12);
-    ctx.textAlign = 'left';
-    ctx.restore();
-  }
-
-  if (gameState === 'dead') {
-    ctx.save();
-    ctx.fillStyle = 'rgba(13,13,26,0.72)';
-    ctx.fillRect(0, 0, W, H);
-
-    ctx.fillStyle = C.red;
-    ctx.font = 'bold 22px "Space Mono", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('GAME OVER', W / 2, H / 2 - 20);
-
-    ctx.fillStyle = C.purple3;
-    ctx.font = 'bold 15px "Space Mono", monospace';
-    ctx.fillText(`SCORE  ${score}`, W / 2, H / 2 + 8);
-
-    ctx.font = '12px "Noto Sans Thai", sans-serif';
-    ctx.fillStyle = 'rgba(122,120,168,0.8)';
-    ctx.fillText('กด Space หรือแตะเพื่อเล่นใหม่', W / 2, H / 2 + 32);
-    ctx.textAlign = 'left';
-    ctx.restore();
-  }
-}
-
-function drawSpeedLine() {
-  if (speed < 7) return;
-  ctx.save();
-  ctx.globalAlpha = (speed - 7) * 0.03;
-  ctx.strokeStyle = C.purple3;
-  ctx.lineWidth = 0.5;
-  for (let i = 0; i < 6; i++) {
-    const ly = GROUND - 8 - i * 7;
-    const lx = W - (frame * speed * 0.9 + i * 80) % (W + 60);
-    ctx.beginPath();
-    ctx.moveTo(lx + 40, ly);
-    ctx.lineTo(lx, ly);
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
-/* ══════════════════════════════
-   GAME LOOP
-══════════════════════════════ */
-function loop() {
-  frame++;
-  score = Math.floor(frame * speed * 0.02);
-  speed = 4.2 + Math.floor(score / 100) * 0.55;
-
-  document.getElementById('scoreDisplay').textContent = score;
-  document.getElementById('lvlDisplay').textContent   = Math.floor(score / 100) + 1;
-
-  if (gameState === 'running') {
-    player.animFrame += player.onGround ? 1 : 0;
-
-    /* gravity */
-    player.vy += 0.55;
-    player.y  += player.vy;
-    if (player.y >= GROUND) {
-      player.y = GROUND;
-      player.vy = 0;
-      player.onGround = true;
-      player.jumpCount = 0;
+    // ฟังก์ชันตรวจสอบการชนกัน (Collision Detection)
+    function checkCollision(rect1, rect2) {
+        return (rect1.x < rect2.x + rect2.width &&
+                rect1.x + rect1.width > rect2.x &&
+                rect1.y < rect2.y + rect2.height &&
+                rect1.y + rect1.height > rect2.y);
     }
 
-    /* clouds scroll */
-    for (const c of clouds) {
-      c.x -= speed * 0.15;
-      if (c.x + c.r * 2 < 0) c.x = W + c.r * 2;
+    // ฟังก์ชันอัปเดตสถานะเกม (Physics & Logic)
+    function update() {
+        // การเคลื่อนที่ซ้าย-ขวา
+        if (keys.right) { if (player.velX < player.speed) player.velX++; }
+        if (keys.left) { if (player.velX > -player.speed) player.velX--; }
+
+        // การกระโดด
+        if (keys.up && player.grounded) {
+            player.jumping = true;
+            player.grounded = false;
+            player.velY = -12; // ความแรงในการกระโดด
+        }
+
+        // คำนวณแรงเสียดทานและแรงโน้มถ่วง
+        player.velX *= friction;
+        player.velY += gravity;
+
+        player.x += player.velX;
+        player.y += player.velY;
+
+        // ไม่ให้วิ่งทะลุขอบจอ
+        if (player.x >= canvas.width - player.width) player.x = canvas.width - player.width;
+        else if (player.x <= 0) player.x = 0;
+
+        // ตรวจสอบการชนกับพื้น (Platform Collision)
+        player.grounded = false;
+        for (let i = 0; i < platforms.length; i++) {
+            let p = platforms[i];
+            
+            // เช็คว่าผู้เล่นตกลงมาเหยียบแท่นหรือไม่
+            if (player.x < p.x + p.width && 
+                player.x + player.width > p.x && 
+                player.y + player.height > p.y && 
+                player.y + player.height < p.y + player.velY + 2) {
+                
+                player.grounded = true;
+                player.jumping = false;
+                player.y = p.y - player.height;
+                player.velY = 0;
+            }
+        }
+
+        // ตรวจสอบการเก็บเหรียญ
+        for (let i = 0; i < coins.length; i++) {
+            let c = coins[i];
+            if (!c.collected && checkCollision(player, c)) {
+                c.collected = true;
+                score += 10; // ได้เหรียญละ 10 คะแนน
+            }
+        }
     }
 
-    trySpawnObstacle();
-    for (const o of obstacles) o.x -= speed;
-    obstacles = obstacles.filter(o => o.x + o.w > -20);
+    // ฟังก์ชันวาดกราฟิกบนหน้าจอ (Render)
+    function draw() {
+        // เคลียร์หน้าจอเก่าทิ้ง
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    /* collision */
-    const pr = getPlayerRect();
-    for (const o of obstacles) {
-      if (overlap(pr, { x: o.x + 3, y: o.y + 3, w: o.w - 6, h: o.h - 6 })) {
-        die(); break;
-      }
+        // วาดพื้นดินและแท่นกระโดด (สีเขียว)
+        ctx.fillStyle = "#228B22";
+        for (let i = 0; i < platforms.length; i++) {
+            ctx.fillRect(platforms[i].x, platforms[i].y, platforms[i].width, platforms[i].height);
+        }
+
+        // วาดเหรียญ (สีทอง)
+        ctx.fillStyle = "#FFD700";
+        for (let i = 0; i < coins.length; i++) {
+            if (!coins[i].collected) {
+                ctx.beginPath();
+                ctx.arc(coins[i].x + 10, coins[i].y + 10, 10, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.closePath();
+            }
+        }
+
+        // วาดตัวละครผู้เล่น (สีแดง)
+        ctx.fillStyle = "#FF4500";
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+
+        // วาดคะแนน
+        ctx.fillStyle = "#000";
+        ctx.font = "20px Arial";
+        ctx.fillText("Score: " + score, 20, 30);
     }
-  }
 
-  /* particles */
-  for (const p of particles) {
-    p.x += p.vx; p.y += p.vy; p.vy += 0.18; p.life -= 0.04;
-  }
-  particles = particles.filter(p => p.life > 0);
+    // วงจรการทำงานหลักของเกม (Game Loop)
+    function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop); // สั่งให้รันเฟรมถัดไปเรื่อยๆ
+    }
 
-  /* render */
-  drawBg();
-  drawSpeedLine();
-  drawGround();
-  for (const o of obstacles) drawObstacle(o);
-  drawPlayer();
-  drawParticles();
-  drawOverlay();
-
-  requestAnimationFrame(loop);
-}
-
-/* start */
-gameState = 'idle';
-score = 0; frame = 0; speed = 4.2;
-obstacles = []; particles = [];
-clouds = [
-  { x: 80,  y: 28, r: 22 },
-  { x: 260, y: 18, r: 16 },
-  { x: 420, y: 32, r: 20 },
-];
-loop();
+    // เริ่มเกม
+    gameLoop();
 </script>
+
 </body>
 </html>
