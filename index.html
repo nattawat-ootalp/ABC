@@ -303,4 +303,36 @@
 
         // วาดศัตรู (สีม่วง)
         for (let e of currentEnemies) {
-            if
+            if (e.alive) {
+                ctx.fillStyle = "#8A2BE2";
+                ctx.fillRect(e.x, e.y, e.width, e.height);
+                // วาดตาศัตรูให้ดูดุๆ
+                ctx.fillStyle = "#FFF";
+                ctx.fillRect(e.x + 5, e.y + 5, 5, 5);
+                ctx.fillRect(e.x + 20, e.y + 5, 5, 5);
+            }
+        }
+
+        // วาดตัวละครผู้เล่น
+        ctx.fillStyle = "#FF4500";
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+
+        // วาด UI
+        ctx.fillStyle = "#000";
+        ctx.font = "20px Arial";
+        ctx.fillText("ด่านที่: " + (currentLevel + 1), 20, 30);
+        ctx.fillText("คะแนน: " + score, 20, 60);
+    }
+
+    function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
+    }
+
+    loadLevel(0);
+    gameLoop();
+</script>
+
+</body>
+</html>
